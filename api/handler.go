@@ -29,7 +29,6 @@ func collectHandler(response http.ResponseWriter, request *http.Request) {
 		log.Fatalf("err: %v", err)
 	}
 	args := u.Query()
-
 	log.Println(args)
 
 	response.Header().Set("Content-Type", "application/json; charset=utf-8")
