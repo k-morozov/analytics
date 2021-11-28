@@ -10,9 +10,13 @@ import (
 func main() {
 	log.Println("Hello world!")
 
+	handler := &api.Handler{}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/collect", handler.Collect)
+
 	server := &http.Server{
 		Addr:           ":8080",
-		Handler:        &api.Handler{},
+		Handler:        mux,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
