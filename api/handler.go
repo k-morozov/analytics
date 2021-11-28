@@ -15,23 +15,15 @@ type Handler struct {
 
 func (h *Handler) Collect(response http.ResponseWriter, request *http.Request) {
 	log.Println("Collect request")
+	var args map[string]string
 	args, err := ParseQuery(request.URL.RawQuery)
 	if nil != err {
 		response.WriteHeader(400)
 		log.Fatalf("error: %v", err)
 	}
-	log.Printf("args = %v\n", args)
 
-	marsh, err := json.Marshal(args)
-	log.Printf("marsh = %v\n", string(marsh))
-	r := db.CollectRequest{}
-	err = json.Unmarshal(marsh, &r)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-		return
-	}
-
-	log.Printf("CollectRequest = %v\n", r)
+	r, err := db.Convert(args)
+	log.Println(*r)
 
 	response.Header().Set("Content-Type", "application/json; charset=utf-8")
 	if err := json.NewEncoder(response).Encode(args); nil != err {
