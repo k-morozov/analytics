@@ -1,20 +1,24 @@
 package main
 
 import (
+	"analytics/api"
 	"log"
 	"net/http"
+	"time"
 )
-
-func collectHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("called handler")
-}
 
 func main() {
 	log.Println("Hello world!")
 
-	http.HandleFunc("/collect", collectHandler)
+	server := &http.Server{
+		Addr:           ":8080",
+		Handler:        &api.Handler{},
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("error: %v", err)
 	}
 }
