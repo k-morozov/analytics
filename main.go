@@ -13,6 +13,10 @@ func main() {
 		log.Fatalf("Ping failed")
 	}
 
+	log.Println("OK")
+
+	_ = client.Send()
+
 	handler := &api.Handler{}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/collect", handler.Collect)

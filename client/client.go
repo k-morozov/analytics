@@ -31,3 +31,32 @@ func Ping() bool {
 	log.Println(resp)
 	return true
 }
+
+func Send() bool {
+	// create table test(title text) ENGINE = Memory;
+	client := &http.Client{}
+
+	reqArgs := url.Values{}
+	reqArgs.Add("query", "create table test(title text) ENGINE = Memory")
+	reqUrl, err := url.Parse("http://13.49.159.232:8123")
+	if nil != err {
+		log.Fatalf("parse: %v", err)
+		return false
+	}
+	//reqUrl.Path = "/query"
+	reqUrl.RawQuery = reqArgs.Encode()
+	log.Println(reqUrl)
+
+	request, _ := http.NewRequest("POST", reqUrl.String(), nil)
+	request.Header.Add("User-Agent", "Mozilla/5.0 AppleWebKit/531.21.10 (KHTML, like Gecko)")
+	//request.Header.Set("Content-Type", "application/json; charset=utf-8; x-readonly=true")
+
+	resp, err := client.Do(request)
+	if nil != err {
+		log.Fatalf("do: %v", err)
+		return false
+	}
+
+	log.Println(resp)
+	return true
+}
