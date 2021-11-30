@@ -1,4 +1,4 @@
-package db
+package api
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ type CollectRequest struct {
 	AppVersion string `json:"av"`
 	ClientId   string `json:"cid"`
 	Action     string `json:"ea"` // action?
-	Category   string `json:"ec"` // Category
+	Category   string `json:"ec"` // Category?
 	Label      string `json:"el"` // label?
 	Value      string `json:"ev"` // value?
 	// @TBD adds all

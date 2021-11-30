@@ -2,13 +2,16 @@ package main
 
 import (
 	"analytics/api"
+	"analytics/client"
 	"log"
 	"net/http"
 	"time"
 )
 
 func main() {
-	log.Println("Hello world!")
+	if status := client.Ping(); !status {
+		log.Fatalf("Ping failed")
+	}
 
 	handler := &api.Handler{}
 	mux := http.NewServeMux()

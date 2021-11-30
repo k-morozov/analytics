@@ -1,7 +1,6 @@
 package api
 
 import (
-	"analytics/db"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -10,7 +9,7 @@ import (
 type Handler struct {
 	// config
 	// logger
-	// db connection
+	// middleware connection
 }
 
 func (h *Handler) Collect(response http.ResponseWriter, request *http.Request) {
@@ -22,7 +21,7 @@ func (h *Handler) Collect(response http.ResponseWriter, request *http.Request) {
 		log.Fatalf("error: %v", err)
 	}
 
-	r, err := db.Convert(args)
+	r, err := Convert(args)
 	log.Println(*r)
 
 	response.Header().Set("Content-Type", "application/json; charset=utf-8")
