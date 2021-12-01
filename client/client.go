@@ -1,14 +1,16 @@
 package client
 
 import (
+	"analytics/api"
 	"log"
 	"net/http"
 	"net/url"
 )
 
 type Client struct {
-	host string
-	port string
+	client *http.Client
+	host   string
+	port   string
 }
 
 func NewClient(rawUrl string) (client ConnectClickHouse, err error) {
@@ -17,12 +19,15 @@ func NewClient(rawUrl string) (client ConnectClickHouse, err error) {
 		return
 	}
 
-	return &Client{host: u.Hostname(), port: u.Port()}, nil
+	client = &Client{
+		client: &http.Client{},
+		host:   u.Hostname(),
+		port:   u.Port()}
+
+	return
 }
 
 func (s *Client) Ping() (ok bool, err error) {
-	client := &http.Client{}
-
 	reqUrl, err := url.Parse("http://" + s.host + ":" + s.port)
 	if nil != err {
 		return
@@ -39,7 +44,7 @@ func (s *Client) Ping() (ok bool, err error) {
 
 	request.Header.Add("User-Agent", "Mozilla/5.0 AppleWebKit/531.21.10 (KHTML, like Gecko)")
 
-	resp, err := client.Do(request)
+	resp, err := s.client.Do(request)
 	if nil != err {
 		return
 	}
@@ -51,16 +56,20 @@ func (s *Client) Ping() (ok bool, err error) {
 	return
 }
 
-func (s *Client) Send() bool {
-	client := &http.Client{}
-
+func (s *Client) CreateTables() (err error) {
 	reqArgs := url.Values{}
-	reqArgs.Add("query", "CREATE TABLE IF NOT EXISTS test(title TEXT) ENGINE = Memory")
+	reqArgs.Add("query", "CREATE TABLE IF NOT EXISTS events("+
+		"AppName TEXT,"+
+		"AppVersion TEXT,"+
+		"ClientId TEXT,"+
+		"Action TEXT,"+
+		"Category TEXT,"+
+		"Label TEXT,"+
+		"Value TEXT) ENGINE = MergeTree() ORDER BY AppName")
 
 	reqUrl, err := url.Parse("http://" + s.host + ":" + s.port)
 	if nil != err {
-		log.Fatalf("parse: %v", err)
-		return false
+		return
 	}
 	//reqUrl.Path = "/query"
 	reqUrl.RawQuery = reqArgs.Encode()
@@ -70,12 +79,42 @@ func (s *Client) Send() bool {
 	request.Header.Add("User-Agent", "Mozilla/5.0 AppleWebKit/531.21.10 (KHTML, like Gecko)")
 	//request.Header.Set("Content-Type", "application/json; charset=utf-8; x-readonly=true")
 
-	resp, err := client.Do(request)
+	_, err = s.client.Do(request)
 	if nil != err {
-		log.Fatalf("do: %v", err)
-		return false
+		return
 	}
+	//log.Println(resp)
 
+	return nil
+}
+
+func (s *Client) AddMetrics(api.CollectRequest) (err error) {
+	reqArgs := url.Values{}
+	reqArgs.Add("query", "INSERT INTO events(AppName, AppVersion, ClientId, Action, Category, Label, Value) "+
+		" VALUES("+
+		"'app', "+
+		"'0.1', "+
+		"'1', "+
+		"'test', "+
+		"'useless', "+
+		"'goto', "+
+		"'001'"+
+		")")
+	reqUrl, err := url.Parse("http://" + s.host + ":" + s.port)
+	if nil != err {
+		return
+	}
+	reqUrl.RawQuery = reqArgs.Encode()
+
+	request, _ := http.NewRequest("POST", reqUrl.String(), nil)
+	request.Header.Add("User-Agent", "Mozilla/5.0 AppleWebKit/531.21.10 (KHTML, like Gecko)")
+	//request.Header.Set("Content-Type", "application/json; charset=utf-8; x-readonly=true")
+
+	resp, err := s.client.Do(request)
+	if nil != err {
+		return
+	}
 	log.Println(resp)
-	return true
+
+	return
 }

@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	// @TBD args
 	connection, _ := client.NewClient("http://13.49.159.232:8123")
 
 	if status, err := connection.Ping(); !status {
@@ -17,7 +18,19 @@ func main() {
 
 	log.Println("ping: OK")
 
-	_ = connection.Send()
+	err := connection.CreateTables()
+	if nil != err {
+		log.Fatalf("CreateTables: %v", err)
+	}
+
+	log.Println("tables: READY")
+
+	err = connection.AddMetrics(api.CollectRequest{})
+	if nil != err {
+		log.Fatalf("CreateTables: %v", err)
+	}
+
+	log.Println("AddMetrics: Done")
 
 	handler := &api.Handler{}
 	mux := http.NewServeMux()
