@@ -9,13 +9,15 @@ import (
 )
 
 func main() {
-	if status := client.Ping(); !status {
-		log.Fatalf("Ping failed")
+	connection, _ := client.NewClient("http://13.49.159.232:8123")
+
+	if status, err := connection.Ping(); !status {
+		log.Fatalf("Ping failed: %v", err)
 	}
 
-	log.Println("OK")
+	log.Println("ping: OK")
 
-	_ = client.Send()
+	_ = connection.Send()
 
 	handler := &api.Handler{}
 	mux := http.NewServeMux()
