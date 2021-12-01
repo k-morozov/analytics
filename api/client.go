@@ -1,7 +1,6 @@
-package client
+package api
 
 import (
-	"analytics/api"
 	"log"
 	"net/http"
 	"net/url"
@@ -88,17 +87,17 @@ func (s *Client) CreateTables() (err error) {
 	return nil
 }
 
-func (s *Client) AddMetrics(api.CollectRequest) (err error) {
+func (s *Client) AddMetrics(r CollectRequest) (err error) {
 	reqArgs := url.Values{}
 	reqArgs.Add("query", "INSERT INTO events(AppName, AppVersion, ClientId, Action, Category, Label, Value) "+
-		" VALUES("+
-		"'app', "+
-		"'0.1', "+
-		"'1', "+
-		"'test', "+
-		"'useless', "+
-		"'goto', "+
-		"'001'"+
+		" VALUES ("+
+		"'"+r.AppName+"', "+
+		"'"+r.AppVersion+"', "+
+		"'"+r.ClientId+"', "+
+		"'"+r.Action+"', "+
+		"'"+r.Category+"', "+
+		"'"+r.Label+"', "+
+		"'"+r.Value+"' "+
 		")")
 	reqUrl, err := url.Parse("http://" + s.host + ":" + s.port)
 	if nil != err {

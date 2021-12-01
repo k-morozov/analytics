@@ -2,7 +2,6 @@ package main
 
 import (
 	"analytics/api"
-	"analytics/client"
 	"log"
 	"net/http"
 	"time"
@@ -10,7 +9,7 @@ import (
 
 func main() {
 	// @TBD args
-	connection, _ := client.NewClient("http://13.49.159.232:8123")
+	connection, _ := api.NewClient("http://13.49.159.232:8123")
 
 	if status, err := connection.Ping(); !status {
 		log.Fatalf("Ping failed: %v", err)
@@ -25,14 +24,26 @@ func main() {
 
 	log.Println("tables: READY")
 
-	err = connection.AddMetrics(api.CollectRequest{})
-	if nil != err {
-		log.Fatalf("CreateTables: %v", err)
+	//request := api.CollectRequest{
+	//	AppName: "app",
+	//	AppVersion: "0.1",
+	//	ClientId: "0001",
+	//	Action: "test",
+	//	Category: "useless",
+	//	Label: "goto",
+	//	Value: "5",
+	//}
+	//
+	//err = connection.AddMetrics(request)
+	//if nil != err {
+	//	log.Fatalf("CreateTables: %v", err)
+	//}
+	//log.Println("AddMetrics: Done")
+
+	handler := &api.Handler{
+		Con: connection,
 	}
 
-	log.Println("AddMetrics: Done")
-
-	handler := &api.Handler{}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/collect", handler.Collect)
 
