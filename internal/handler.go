@@ -1,4 +1,4 @@
-package api
+package internal
 
 import (
 	"encoding/json"
@@ -10,6 +10,7 @@ type Handler struct {
 	// config
 	// logger
 	// middleware connection
+	Con ConnectClickHouse
 }
 
 func (h *Handler) Collect(response http.ResponseWriter, request *http.Request) {
@@ -23,6 +24,11 @@ func (h *Handler) Collect(response http.ResponseWriter, request *http.Request) {
 
 	r, err := Convert(args)
 	log.Println(*r)
+
+	err = h.Con.AddMetrics(*r)
+	if err != nil {
+		return
+	}
 
 	response.Header().Set("Content-Type", "application/json; charset=utf-8")
 	if err := json.NewEncoder(response).Encode(args); nil != err {
