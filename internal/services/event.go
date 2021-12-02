@@ -7,16 +7,38 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 )
 
-type Handler struct {
+type EventService struct {
 	// config
 	// logger
 	// middleware connection
-	Con interfaces.ConnectClickHouse
+	EventReceiver *http.Server
+	client        interfaces.ConnectClickHouse
 }
 
-func (h *Handler) Collect(response http.ResponseWriter, request *http.Request) {
+func NewEventService(client interfaces.ConnectClickHouse) *EventService {
+
+	service := &EventService{
+		client: client,
+	}
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/collect", service.collect)
+
+	service.EventReceiver = &http.Server{
+		Addr:           ":8080",
+		Handler:        mux,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	return service
+}
+
+func (h *EventService) collect(response http.ResponseWriter, request *http.Request) {
 	log.Println("Collect request")
 	var args map[string]string
 	args, err := utils.ParseQuery(request.URL.RawQuery)
@@ -25,10 +47,9 @@ func (h *Handler) Collect(response http.ResponseWriter, request *http.Request) {
 		log.Fatalf("error: %v", err)
 	}
 
-	r, err := Convert(args)
-	log.Println(*r)
+	event, err := convert(args)
 
-	err = h.Con.AddMetrics(*r)
+	err = h.client.AddMetrics(*event)
 	if err != nil {
 		return
 	}
@@ -40,7 +61,7 @@ func (h *Handler) Collect(response http.ResponseWriter, request *http.Request) {
 	response.WriteHeader(200)
 }
 
-func Convert(args map[string]string) (r *model.CollectRequest, err error) {
+func convert(args map[string]string) (r *model.Event, err error) {
 	marsh, err := json.Marshal(args)
 	//log.Printf("marsh = %v\n", string(marsh))
 	err = json.Unmarshal(marsh, &r)

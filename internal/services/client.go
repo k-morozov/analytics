@@ -89,7 +89,7 @@ func (s *Client) CreateTables() (err error) {
 	return nil
 }
 
-func (s *Client) AddMetrics(r model.CollectRequest) (err error) {
+func (s *Client) AddMetrics(r model.Event) (err error) {
 	reqArgs := url.Values{}
 	reqArgs.Add("query", "INSERT INTO events(AppName, AppVersion, ClientId, Action, Category, Label, Value) "+
 		" VALUES ("+

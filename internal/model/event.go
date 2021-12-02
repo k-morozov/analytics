@@ -1,7 +1,7 @@
 package model
 
-// CollectRequest @TBD thinks about types
-type CollectRequest struct {
+// Event @TBD thinks about types
+type Event struct {
 	AppName    string `json:"an"`
 	AppVersion string `json:"av"`
 	ClientId   string `json:"cid"`
