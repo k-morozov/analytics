@@ -1,7 +1,7 @@
 package main
 
 import (
-	"analytics/internal"
+	"analytics/internal/services"
 	"log"
 	"net/http"
 	"time"
@@ -9,7 +9,7 @@ import (
 
 func main() {
 	// @TBD args
-	connection, _ := internal.NewClient("http://13.49.159.232:8123")
+	connection, _ := services.NewClient("http://13.49.159.232:8123")
 
 	if status, err := connection.Ping(); !status {
 		log.Fatalf("Ping failed: %v", err)
@@ -40,7 +40,7 @@ func main() {
 	//}
 	//log.Println("AddMetrics: Done")
 
-	handler := &internal.Handler{
+	handler := &services.Handler{
 		Con: connection,
 	}
 

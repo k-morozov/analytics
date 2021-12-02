@@ -1,6 +1,8 @@
-package internal
+package services
 
 import (
+	"analytics/internal/interfaces"
+	"analytics/internal/model"
 	"log"
 	"net/http"
 	"net/url"
@@ -12,7 +14,7 @@ type Client struct {
 	port   string
 }
 
-func NewClient(rawUrl string) (client ConnectClickHouse, err error) {
+func NewClient(rawUrl string) (client interfaces.ConnectClickHouse, err error) {
 	u, err := url.Parse(rawUrl)
 	if nil != err {
 		return
@@ -87,7 +89,7 @@ func (s *Client) CreateTables() (err error) {
 	return nil
 }
 
-func (s *Client) AddMetrics(r CollectRequest) (err error) {
+func (s *Client) AddMetrics(r model.CollectRequest) (err error) {
 	reqArgs := url.Values{}
 	reqArgs.Add("query", "INSERT INTO events(AppName, AppVersion, ClientId, Action, Category, Label, Value) "+
 		" VALUES ("+

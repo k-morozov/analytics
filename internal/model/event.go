@@ -1,9 +1,4 @@
-package internal
-
-import (
-	"encoding/json"
-	"log"
-)
+package model
 
 // CollectRequest @TBD thinks about types
 type CollectRequest struct {
@@ -16,15 +11,4 @@ type CollectRequest struct {
 	Value      string `json:"ev"` // value?
 	// @TBD adds all
 	// t:event tid: v:1 z:-38677
-}
-
-func Convert(args map[string]string) (r *CollectRequest, err error) {
-	marsh, err := json.Marshal(args)
-	//log.Printf("marsh = %v\n", string(marsh))
-	err = json.Unmarshal(marsh, &r)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-		return
-	}
-	return
 }
