@@ -1,4 +1,4 @@
-package api
+package internal
 
 type ConnectClickHouse interface {
 	Ping() (ok bool, err error)
